@@ -5,9 +5,9 @@ Repositório com algoritmos e notebooks de docking molecular.
 
 ## *04/11* 
 A partir de hoje começo um diário de bordo narrando parte do meu trabalho no projeto de docking molecular. Alguns códigos já foram criados antes do início desse diário, porém pretendo apresentar isto posteriormente.
-Hoje, vou começar apresentando o resultado de um docking que eu fiz na PLPro do vírus Sars-Cov-2 utilizando o fármaco Luteolin, que a priori é um ligante que apresentou bons resultados nos artigos que eu li. 
-Segundo o artigo "The SARS-coronavirus papain-like protease: Structure, function and inhibition by designed antiviral compounds" o sítio ativo do SARS-CoV-1 fica localizando na região Cys112–His273–Asp287, então o docking será feito nessa região. Perceba que, esse não é o SARS-CoV-2, mas sim um vírus anterior muito parecido com esse da epidemia de 2020.
-Para consulta posterior, utilizando o AutodockVina tomei exhaustiveness = 100. Proteína PDB 6wuu.
+Hoje, vou começar apresentando o resultado de um docking que eu fiz para a proteína PLPro do vírus Sars-Cov-2 utilizando o fármaco Luteolin (https://pubchem.ncbi.nlm.nih.gov/compound/Luteolin) ### Como inserir hiperlink Rafael??? ####, que a priori é um ligante que apresentou bons resultados nos artigos que eu li. 
+Segundo o artigo "The SARS-coronavirus papain-like protease: Structure, function and inhibition by designed antiviral compounds" (https://doi.org/10.1016/j.antiviral.2014.12.015) o sítio ativo do SARS-CoV-1 fica localizando na região Cys112–His273–Asp287, então o docking será feito nessa região. Perceba que, esse não é o SARS-CoV-2, mas sim um vírus anterior (SARS-Cov-1) de 2002 muito parecido com esse da epidemia de 2020.
+Para consulta posterior, utilizando o AutodockVina tomei exhaustiveness = 100. Proteína PDB 6wuu (https://www.rcsb.org/structure/6WUU).
 
 Os resultados foram,
 
@@ -29,10 +29,10 @@ Vamos analisar o primeiro modo (repare que houve um shift, uma subtração de me
 ![Resultado0411](Image/0411-Resultado.PNG)
 
 Temos duas ligações no sítio ativo, porém a energia de ligação é muito baixa.
-Para continuar vamos fazer um docking em várias partes da proteína e avaliar se existem outras posições em que a ligação pode ser realizada com um melhor gasto de energia. Para isso irei utilizar o algoritmo "Algoritmo Simulações AutoDock Vina"
+Para continuar vamos fazer um docking em várias partes da proteína e avaliar se existem outras posições em que a ligação pode ser realizada com uma energia de ligação mais atrativa. Para isso irei utilizar o algoritmo "Algoritmo Simulações AutoDock Vina" ### Coloque o link deste código ####
 
 ## *05/11* 
-Durante a noite eu deixei meu PC rodando o docking em várias partes da proteína e levou cerca de uma hora para completar o processo. Com isso utilizei um notebook para realizar a análise desses dados, foram 3362 de resultados.
+Durante a noite eu deixei meu PC rodando o docking em várias partes da proteína e levou cerca de uma hora para completar o processo ## apenas por curiosidade informe as configurações do seu PC: processador/ram/placa gráfica ###. Com isso utilizei um notebook para realizar a análise desses dados, foram 3362 de resultados.
 
 |      |         x |         y |         z |      RMSD | Energy |
 |-----:|----------:|----------:|----------:|----------:|-------:|
@@ -42,7 +42,7 @@ Durante a noite eu deixei meu PC rodando o docking em várias partes da proteín
 | 1761 | 45.786486 | 47.644405 | -8.122137 | 39.249817 |   -8.8 |
 | 2058 | 55.825401 | 40.619856 | 28.457556 | 20.667280 |   -8.7 |
 
-Como podem ver existe uma região de mínimo para a energia, porém não é no sítio ativo, tomei o melhor desempenho energético como o referencial para o cálculo do RMSD. A energia nessa região de mínimo chega a ser 50% menor que a energia no sítio ativo, aparentemente o ligante não é bom para a PLPro. Porém, vamos continuar com a nossa análise.
+Como podem ver existe uma região de mínimo para a energia, porém não é no sítio ativo, tomei o melhor desempenho energético como o referencial para o cálculo do RMSD ### como assim? ###. A energia nessa região de mínimo chega a ser 50% menor que a energia no sítio ativo, aparentemente o ligante não é bom para a PLPro. Porém, vamos continuar com a nossa análise.
 
 Filtrando os dados <= -6.0 Kcal/mol ploto um scatterplot para visualizar a dispersão dos dados. Abaixo temos o plot para XY.
 
@@ -54,18 +54,18 @@ Ademais, para continuar a análise implementei umas nova funcionalidades ao note
 
 ![3dscatter0511](Image/3dscatter0511.PNG)
 
-Porém, é visível que existem regiões próximas com uma melhor afinidade energética, então implementei outra nova funcionalidade para selecionar uma caixa em um intervalo do meu DataFrame determinado por um array 3x2, ie, [[x0, x1],[y0, y1],[z0, z1]] para uma análise mais apurada dos resultados. Após isso, foi possível visualizar que existe uma região próxima do sítio ativo com melhores resultados, por exemplo uma das simulações gerou um resultado com centro de massa no ponto x, y, z = 53.89, 40.30, 28.81 com energia de -8.2. Abaixo vai o gráfico obtido com essa implementação,
+Porém, é visível que existem regiões próximas com uma melhor afinidade energética, então implementei outra nova funcionalidade para selecionar uma caixa em um intervalo do meu DataFrame determinado por um array 3x2, ie, [[x0, x1],[y0, y1],[z0, z1]] para uma análise mais apurada dos resultados. ### Essa região é a próxima do sítio catalítico?? ### Após isso, foi possível visualizar que existe uma região próxima do sítio ativo com melhores resultados, por exemplo uma das simulações gerou um resultado com centro de massa no ponto x, y, z = 53.89, 40.30, 28.81 com energia de -8.2. Abaixo vai o gráfico obtido com essa implementação,
 
 ![regiaocomenergias0511](Image/regiaocomenergias.PNG)
 
-Além disso, realizei duas clusterizações dos dados uma utilizando o KMeans e outra com o DBSCAN. Utilizei o DBSCAN, pois é desconsiderado pontos muito fora do cluster, tais pontos são tratados como ruído. Por fim, normalizei os dados para que todos tenham o mesmo peso, ou seja, as coordenadas x, y e z, energia e RMSD possuem o mesmo peso na hora de calculas os clusters. Creio que a priori é a melhor forma, pois existem valores de RMSD muito altos que porem prejudicar os algoritmos de cluster, mas preciso me aprofundar mais nessa questão. Aqui vai os resultados.
+Além disso, realizei duas clusterizações dos dados uma utilizando o KMeans e outra com o DBSCAN. Utilizei o DBSCAN, pois é desconsiderado pontos muito fora do cluster, tais pontos são tratados como ruído. Por fim, normalizei os dados para que todos tenham o mesmo peso, ou seja, as coordenadas x, y e z, energia e RMSD possuem o mesmo peso na hora de calcular os clusters. ### Então, faça a clusterização só das coordenadas XYZ e veja o resultado. Depois adicione a energia e veja o que muda. Acredito que o RMSD não adiciona novas informações nesta análise. Conversamos depois sobre isso. ### Creio que a priori é a melhor forma, pois existem valores de RMSD muito altos que porem prejudicar os algoritmos de cluster, mas preciso me aprofundar mais nessa questão. Aqui vai os resultados.
 
 ![XY_CLUSTER_NORMAL0511](Image/XY_CLUSTER_NORMAL0511.png)
 ![XY_CLUSTER_NORMAL_DBSCAN0511](Image/XY_CLUSTER_NORMAL_DBSCAN0511.png)
 
 Comparando com o gráfico "Luteolin PLPro - X Y" no começo do diário 05/11 é difícil tirar alguma informação importante de ambos os clusters, talvez eu precise implementar os algoritmos de cluster de uma melhor forma priorizando a energia, ou talvez considerar os eixos das coordenas como uma esfera de raio, r^2 = x^2 + y^2 + z^2 com origem no sítio ativo. Isso será analisado e em breve divulgarei uma forma melhor de fazer isso.
 
-Por fim, aparentemente os resultados para o docking do Luteoin na PLPro são inconsistentes, pois os valores energéticos são piores quando comparados com outras regiões além do sítio ativo.
+Por fim, aparentemente os resultados para o docking do Luteoin na PLPro são inconsistentes, pois os valores energéticos são piores quando comparados com outras regiões além do sítio ativo. ## Então, na prática os clusters tem que ser os mesmos que você extrair do seu script joinpdb. Esse será nosso teste. Se a forma e o número de clusters que visualizamos for os mesmos do DBSCAN estaremos no caminho certo! ###
 
 Fica aqui algumas ideias de algoritmos para facilitar o trabalho com os dados: 
 
@@ -75,7 +75,7 @@ Encontrar uma melhor maneira de clusterizar o resultados;
 
 Aprimorar as funções que analisam .pdbqt para não precisarem do número de átomos;
 
-Plotar a proteína com o ligante pelo notebook usando bibliotecas de biologia computacional;
+Plotar a proteína com o ligante pelo notebook usando bibliotecas de biologia computacional; Por exemplo: (https://biopython.org/) e (http://rasbt.github.io/biopandas/)
 
 Criar um gui para outras pessoas poderem interagir com os algoritmos;
 
@@ -84,10 +84,10 @@ Procurar uma forma de usar CPU e GPU para os cálculos com o Vina ao invés de a
 
 ## *12/11* 
 Hoje eu implementei um algoritmo chamado "joinpdbqt.py" que recebe um diretório, lê todos os arquivos .pdbqt e retorna apenas um arquivo .pqdbt. O código ficou muito bem escrito, creio que o uso do enumerate ajudou o código a fica com um bom clean code. Além do mais, como essa semana está corrida não consiguirei me dedicar muito ao projeto, mas a partir daqui vou tentar analisar de forma mais profunda os resultados do docking da semana passada.
-Na análise da semana passada tudo parecia perdido, o resultado enégico para o sítio ativo estava péssimo. Então após conversar com o professor Marcos resolvi olhar para o ligante que vem junto com a proteína PLPRO que é chamada de 6WUU no site Protein Data Bank que é o VIR 250. Procurando um resultado de docking proxímo a esse sítio obtive o seguinte resultado para de interação.
+Na análise da semana passada tudo parecia perdido, o resultado enégico para o sítio ativo estava péssimo. Então após conversar com o professor Marcos resolvi olhar para o ligante que vem junto com a proteína PLPRO que é chamada de 6WUU no site Protein Data Bank que é o VIR 250. Procurando um resultado de docking proxímo a esse sítio obtive o seguinte resultado para de interação. ### Coloque uma figura da superposição dos dois compostos na proteína que ficará mais fácil verificar isso. ###
 
 ![RES1211](Image/RES1211.PNG)
 A figura da esquerda representa o ligante VIR250, enquanto que a da direita é o Luteolin. Perceba que ele interage com os aminoácidos MET208 e ASP164. O resultado da direita obteve um valor energético -7.7, melhor que para o resultado estudando no sítio ativo de -6.0.
 
-A priori isso pode representar algum avanço, porém preciso analisar melhor esse resultado e também encontrar alguma forma de encontrar um resultado melhor realizando mais dockings nesta região.
+A priori isso pode representar algum avanço, porém preciso analisar melhor esse resultado e também encontrar alguma forma de encontrar um resultado melhor realizando mais dockings nesta região. ### Great Success! ###
 
